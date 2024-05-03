@@ -1,0 +1,93 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Asset {
+  id               Int   @id @default(autoincrement()) 
+  assetId          String   @db.Text 
+  name             String?  @db.Text
+  shortDescription String?  @db.Text
+  tags             Json?
+  previewImageUrls Json?
+  license          String?  @db.Text
+  objectType       String?  @db.Text
+  animationsCount  Int?  
+  maxFramesCount   Int?  
+  width            Int?  
+  height           Int?  
+  dominantColors   Json?
+  createAt        DateTime @default(now()) @db.Timestamptz
+
+  @@map("assets")
+}
+
+model Pack {
+  id           Int   @id @default(autoincrement()) 
+  name         String?  @db.Text
+  tag          String?  @db.Text
+  categories   Json?
+  thumbnailUrl String?  @db.Text
+  assetsCount  Int?  
+  authors      Json?
+  licenses     Json?
+  createAt    DateTime @default(now())  @db.Timestamptz
+  @@map("packs")
+}
+
+model Tag {
+  id        Int   @id @default(autoincrement()) 
+  name      String?  @db.Text
+  prop      Int?     @default(0) @db.SmallInt
+  createAt DateTime @default(now()) @db.Timestamptz
+  @@map("tags")
+}
+
+model TagsTree {
+  id              Int   @id @default(autoincrement()) 
+  name            String?  @db.Text
+  children        Json?
+  allChildrenTags Json?
+  createAt       DateTime @default(now()) @db.Timestamptz
+  @@map("tagsTree")
+}
+
+model Author {
+  id        Int   @id @default(autoincrement()) 
+  name     String?  @db.Text
+  searchToken String?  @db.Text
+  website String?  @db.Text
+  @@map("authors")
+}
+
+model License {
+  id        Int   @id @default(autoincrement()) 
+  name     String?  @db.Text
+  website String?  @db.Text
+  searchToken String?  @db.Text
+  @@map("licenses")
+}
+
+model User {
+  id                    Int               @id @default(autoincrement())
+  wallet                String            @unique     // both indexed and unique
+  balance               Float             @default(0)
+  role                  String            @default("user")
+  created_at            DateTime          @default(now())
+  credit                Credit[]
+}
+
+model Credit {
+  id                    Int               @id @default(autoincrement())
+  tx                    String
+  credit                Int
+  created_at            DateTime          @default(now())
+  user_id               Int
+  user                  User              @relation(fields: [user_id], references: [id])
+}
